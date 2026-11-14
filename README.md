@@ -10,11 +10,16 @@ A simple command-line expense tracker written in Python.
 - Data saved to a local JSON file
 - Categorize expenses (food, transport, bills, shopping, other)
 - Spending summary by category with percentages
+- Input validation (no empty descriptions, no zero or negative amounts)
 
 ## How to run
 python main.py
 
 ## Next steps
+- Edit existing expenses
+- Export expenses to CSV
+- Filter expenses by category
 
 
-- Better input validation
+
+
