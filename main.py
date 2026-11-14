@@ -36,16 +36,32 @@ def show_expenses(expenses):
     print(f"Total: {total:.2f}")
 
 
+def delete_expense(expenses):
+    show_expenses(expenses)
+    if not expenses:
+        return
+    try:
+        index = int(input("Number to delete: ")) - 1
+        removed = expenses.pop(index)
+    except (ValueError, IndexError):
+        print("Invalid number.")
+        return
+    save(expenses)
+    print(f"Deleted: {removed['name']}")
+
+
 def main():
     expenses = load()
     while True:
-        print("\n1) Add expense  2) View expenses  3) Quit")
+        print("\n1) Add  2) View  3) Delete  4) Quit")
         choice = input("Choose: ").strip()
         if choice == "1":
             add_expense(expenses)
         elif choice == "2":
             show_expenses(expenses)
         elif choice == "3":
+            delete_expense(expenses)
+        elif choice == "4":
             break
         else:
             print("Invalid choice.")
