@@ -1,4 +1,4 @@
-# expense-tracker-python
+
 # expense-tracker-python
 
 A simple command-line expense tracker written in Python.
