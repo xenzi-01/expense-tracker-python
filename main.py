@@ -7,12 +7,36 @@ CATEGORIES = ["food", "transport", "bills", "shopping", "other"]
 
 def load():
     if FILE.exists():
-        return json.loads(FILE.read_text())
+        try:
+            return json.loads(FILE.read_text())
+        except json.JSONDecodeError:
+            print("Data file is corrupted. Starting fresh.")
     return []
 
 
 def save(expenses):
     FILE.write_text(json.dumps(expenses, indent=2))
+
+
+def ask_description():
+    while True:
+        name = input("Description: ").strip()
+        if name:
+            return name
+        print("Description cannot be empty.")
+
+
+def ask_amount():
+    while True:
+        try:
+            amount = float(input("Amount: "))
+        except ValueError:
+            print("Please enter a valid number.")
+            continue
+        if amount <= 0:
+            print("Amount must be greater than zero.")
+            continue
+        return amount
 
 
 def choose_category():
@@ -21,6 +45,8 @@ def choose_category():
         print(f"{i}. {c}")
     try:
         index = int(input("Pick a category number: ")) - 1
+        if index < 0:
+            raise IndexError
         return CATEGORIES[index]
     except (ValueError, IndexError):
         print("Invalid choice, using 'other'.")
@@ -28,12 +54,8 @@ def choose_category():
 
 
 def add_expense(expenses):
-    name = input("Description: ").strip()
-    try:
-        amount = float(input("Amount: "))
-    except ValueError:
-        print("Please enter a valid number.")
-        return
+    name = ask_description()
+    amount = ask_amount()
     category = choose_category()
     expenses.append({"name": name, "amount": amount, "category": category})
     save(expenses)
@@ -57,6 +79,8 @@ def delete_expense(expenses):
         return
     try:
         index = int(input("Number to delete: ")) - 1
+        if index < 0:
+            raise IndexError
         removed = expenses.pop(index)
     except (ValueError, IndexError):
         print("Invalid number.")
