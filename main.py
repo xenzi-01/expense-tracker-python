@@ -65,10 +65,26 @@ def delete_expense(expenses):
     print(f"Deleted: {removed['name']}")
 
 
+def show_summary(expenses):
+    if not expenses:
+        print("No expenses yet.")
+        return
+    totals = {}
+    for e in expenses:
+        category = e.get("category", "other")
+        totals[category] = totals.get(category, 0) + e["amount"]
+    grand_total = sum(totals.values())
+    print("\nSpending by category:")
+    for category, amount in sorted(totals.items(), key=lambda x: x[1], reverse=True):
+        percent = amount / grand_total * 100
+        print(f"{category}: {amount:.2f} ({percent:.1f}%)")
+    print(f"Total: {grand_total:.2f}")
+
+
 def main():
     expenses = load()
     while True:
-        print("\n1) Add  2) View  3) Delete  4) Quit")
+        print("\n1) Add  2) View  3) Delete  4) Summary  5) Quit")
         choice = input("Choose: ").strip()
         if choice == "1":
             add_expense(expenses)
@@ -77,6 +93,8 @@ def main():
         elif choice == "3":
             delete_expense(expenses)
         elif choice == "4":
+            show_summary(expenses)
+        elif choice == "5":
             break
         else:
             print("Invalid choice.")
