@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 FILE = Path("expenses.json")
+CATEGORIES = ["food", "transport", "bills", "shopping", "other"]
 
 
 def load():
@@ -14,6 +15,18 @@ def save(expenses):
     FILE.write_text(json.dumps(expenses, indent=2))
 
 
+def choose_category():
+    print("Categories:")
+    for i, c in enumerate(CATEGORIES, 1):
+        print(f"{i}. {c}")
+    try:
+        index = int(input("Pick a category number: ")) - 1
+        return CATEGORIES[index]
+    except (ValueError, IndexError):
+        print("Invalid choice, using 'other'.")
+        return "other"
+
+
 def add_expense(expenses):
     name = input("Description: ").strip()
     try:
@@ -21,7 +34,8 @@ def add_expense(expenses):
     except ValueError:
         print("Please enter a valid number.")
         return
-    expenses.append({"name": name, "amount": amount})
+    category = choose_category()
+    expenses.append({"name": name, "amount": amount, "category": category})
     save(expenses)
     print("Saved.")
 
@@ -31,7 +45,8 @@ def show_expenses(expenses):
         print("No expenses yet.")
         return
     for i, e in enumerate(expenses, 1):
-        print(f"{i}. {e['name']}: {e['amount']:.2f}")
+        category = e.get("category", "other")
+        print(f"{i}. {e['name']} [{category}]: {e['amount']:.2f}")
     total = sum(e["amount"] for e in expenses)
     print(f"Total: {total:.2f}")
 
