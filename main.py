@@ -89,6 +89,48 @@ def delete_expense(expenses):
     print(f"Deleted: {removed['name']}")
 
 
+def edit_expense(expenses):
+    show_expenses(expenses)
+    if not expenses:
+        return
+    try:
+        index = int(input("Number to edit: ")) - 1
+        if index < 0:
+            raise IndexError
+        expense = expenses[index]
+    except (ValueError, IndexError):
+        print("Invalid number.")
+        return
+
+    print("Press Enter to keep the current value.")
+
+    new_name = input(f"Description [{expense['name']}]: ").strip()
+    if new_name:
+        expense["name"] = new_name
+
+    while True:
+        new_amount = input(f"Amount [{expense['amount']:.2f}]: ").strip()
+        if not new_amount:
+            break
+        try:
+            value = float(new_amount)
+        except ValueError:
+            print("Please enter a valid number.")
+            continue
+        if value <= 0:
+            print("Amount must be greater than zero.")
+            continue
+        expense["amount"] = value
+        break
+
+    change_category = input("Change category? (y/n): ").strip().lower()
+    if change_category == "y":
+        expense["category"] = choose_category()
+
+    save(expenses)
+    print("Updated.")
+
+
 def show_summary(expenses):
     if not expenses:
         print("No expenses yet.")
@@ -108,17 +150,19 @@ def show_summary(expenses):
 def main():
     expenses = load()
     while True:
-        print("\n1) Add  2) View  3) Delete  4) Summary  5) Quit")
+        print("\n1) Add  2) View  3) Edit  4) Delete  5) Summary  6) Quit")
         choice = input("Choose: ").strip()
         if choice == "1":
             add_expense(expenses)
         elif choice == "2":
             show_expenses(expenses)
         elif choice == "3":
-            delete_expense(expenses)
+            edit_expense(expenses)
         elif choice == "4":
-            show_summary(expenses)
+            delete_expense(expenses)
         elif choice == "5":
+            show_summary(expenses)
+        elif choice == "6":
             break
         else:
             print("Invalid choice.")
