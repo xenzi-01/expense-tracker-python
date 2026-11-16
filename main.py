@@ -1,4 +1,5 @@
 import json
+from datetime import date, datetime
 from pathlib import Path
 
 FILE = Path("expenses.json")
@@ -57,7 +58,14 @@ def add_expense(expenses):
     name = ask_description()
     amount = ask_amount()
     category = choose_category()
-    expenses.append({"name": name, "amount": amount, "category": category})
+    expenses.append(
+        {
+            "name": name,
+            "amount": amount,
+            "category": category,
+            "date": date.today().isoformat(),
+        }
+    )
     save(expenses)
     print("Saved.")
 
@@ -68,7 +76,8 @@ def show_expenses(expenses):
         return
     for i, e in enumerate(expenses, 1):
         category = e.get("category", "other")
-        print(f"{i}. {e['name']} [{category}]: {e['amount']:.2f}")
+        when = e.get("date", "no date")
+        print(f"{i}. {e['name']} [{category}] {when}: {e['amount']:.2f}")
     total = sum(e["amount"] for e in expenses)
     print(f"Total: {total:.2f}")
 
@@ -147,10 +156,44 @@ def show_summary(expenses):
     print(f"Total: {grand_total:.2f}")
 
 
+def show_monthly_summary(expenses):
+    if not expenses:
+        print("No expenses yet.")
+        return
+
+    default_month = date.today().strftime("%Y-%m")
+    month = input(f"Month (YYYY-MM) [{default_month}]: ").strip() or default_month
+
+    try:
+        datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        print("Use the format YYYY-MM, for example 2026-11.")
+        return
+
+    selected = [e for e in expenses if e.get("date", "").startswith(month)]
+    if not selected:
+        print(f"No expenses found for {month}.")
+        return
+
+    totals = {}
+    for e in selected:
+        category = e.get("category", "other")
+        totals[category] = totals.get(category, 0) + e["amount"]
+    month_total = sum(totals.values())
+
+    print(f"\nSpending for {month}:")
+    for category, amount in sorted(totals.items(), key=lambda x: x[1], reverse=True):
+        print(f"{category}: {amount:.2f}")
+    print(f"Month total: {month_total:.2f} ({len(selected)} expenses)")
+
+
 def main():
     expenses = load()
     while True:
-        print("\n1) Add  2) View  3) Edit  4) Delete  5) Summary  6) Quit")
+        print(
+            "\n1) Add  2) View  3) Edit  4) Delete  "
+            "5) Summary  6) Monthly  7) Quit"
+        )
         choice = input("Choose: ").strip()
         if choice == "1":
             add_expense(expenses)
@@ -163,6 +206,8 @@ def main():
         elif choice == "5":
             show_summary(expenses)
         elif choice == "6":
+            show_monthly_summary(expenses)
+        elif choice == "7":
             break
         else:
             print("Invalid choice.")
